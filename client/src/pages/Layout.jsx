@@ -5,7 +5,7 @@ const Layout = () => {
   return (
     <div>
         <h1>Layout</h1>
-        <Outlet />
+        <Outlet />       {/* Layout routing childs will render here e.g. :- /ai/write-article */}
     </div>
     
   )
