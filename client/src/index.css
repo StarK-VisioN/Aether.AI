@@ -17,3 +17,65 @@
 .cl-drawerRoot {
   z-index: 10;
 }
+
+/* More targeted reset that preserves markdown structure */
+.markdown-content {
+  /* Reset only what's necessary */
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.markdown-content * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Restore markdown-specific styling */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  font-weight: bold;
+  margin: 1em 0 0.5em 0;
+  line-height: 1.25;
+}
+
+.markdown-content h1 {
+  font-size: 2em;
+}
+
+.markdown-content h2 {
+  font-size: 1.5em;
+}
+
+.markdown-content h3 {
+  font-size: 1.25em;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.markdown-content li {
+  margin: 0.5em 0;
+}
+
+.markdown-content p {
+  margin: 1em 0;
+  line-height: 1.6;
+}
+
+.markdown-content strong {
+  font-weight: bold;
+}
+
+.markdown-content em {
+  font-style: italic;
+}

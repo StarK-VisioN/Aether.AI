@@ -1,5 +1,11 @@
 import { Edit, Sparkle } from 'lucide-react'
 import React, { useState } from 'react'
+import axios from 'axios'
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+import Markdown from 'react-markdown';
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const WriteArtical = () => {
 
@@ -11,9 +17,30 @@ const WriteArtical = () => {
 
   const [selectedLength, setSeletedLength] = useState(articalLength[0]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('')
+
+  const {getToken} = useAuth()
 
   const onSubmitHnadler = async(e) => {
     e.preventDefault();
+    try {
+      setLoading(true)
+      const prompt = `Write an article about ${input} in ${selectedLength.text}`
+
+      const {data} = await axios.post('/api/ai/generate-article', {prompt, length: selectedLength.length}, {
+        headers: {Authorization: `Bearer ${await getToken()}`}
+      })
+
+      if(data.success) {
+        setContent(data.content)
+      } else {
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+    setLoading(false)
   }
 
   return (
@@ -37,8 +64,11 @@ const WriteArtical = () => {
         
         <br />
         
-        <button className='flex w-full justify-center items-center gap-2 bg-[#226BFF] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer'>
-          <Edit className='w-5' />
+        <button disabled={loading} className='flex w-full justify-center items-center gap-2 bg-[#226BFF] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer'>
+          {
+            loading ? <span className='w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin'></span>
+            : <Edit className='w-5' />
+          }
           Generate Article
         </button>
       </form>
@@ -49,12 +79,19 @@ const WriteArtical = () => {
             <Edit className='w-5 h-5 text-[#4A7AFF]' />
             <h1 className='text-xl font-semibold'>Generated Artical</h1>
           </div>
-          <div className='flex-1 flex justify-center items-center'>
+          {!content ? (
+            <div className='flex-1 flex justify-center items-center'>
             <div className='text-sm flex flex-col items-center gap-5 text-gray-400'>
               <Edit className='w-9 h-9' />
               <p>Enter a topic and click "Generate Article" to get started</p>
             </div>
           </div>
+          ) : (
+            <div className='mt-3 h-full overflow-y-scroll text-sm text-slate-600'>
+              <div className='markdown-content'><Markdown>{content}</Markdown></div>
+            </div>
+          )}
+          
       </div>
     </div>
   )
