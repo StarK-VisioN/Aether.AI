@@ -1,21 +1,21 @@
-import React from 'react'
-import Navbar from '../components/Navbar'
-import Hero from '../components/Hero'
-import AiTools from '../components/AiTools'
-import Arrow from '../components/Arrow'
-import Plan from '../components/Plan'
-import Footer from '../components/Footer'
+import React from "react";
+import Navbar from "../components/Navbar";
+import Hero from "../components/Hero";
+import AiTools from "../components/AiTools";
+import Arrow from "../components/Arrow";
+import Plan from "../components/Plan";
+import Footer from "../components/Footer";
 
 const Home = () => {
   return (
     <>
-        <Navbar />
-        <Hero />
-        <AiTools />
-        <Plan />
-        <Footer />
+      <Navbar />
+      <Hero />
+      <AiTools />
+      <Plan />
+      <Footer />
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
