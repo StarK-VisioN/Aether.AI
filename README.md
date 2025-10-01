@@ -1,6 +1,6 @@
 # 🌌 AetherAI
-## 🚀 Live Demo
-👉 [AetherAI – Live Project](https://aether-ai-xi.vercel.app/)
+# 🚀 Live Demo 👉 [AetherAI – Live Project](https://aether-ai-xi.vercel.app/)
+
 AetherAI is a **fully functional AI SaaS platform** built with the **PERN stack** (PostgreSQL, Express, React, Node.js).  
 It provides AI-powered tools for **content creation, image editing, and resume analysis**, all integrated with **subscription billing** to unlock premium features.
 
