@@ -22,7 +22,6 @@ export const getPublishedCreations = async(req, res) => {
     }
 }
 
-
 export const toggleLikeCreation = async(req, res) => {
     try {
         const {userId} = req.auth();
@@ -33,22 +32,23 @@ export const toggleLikeCreation = async(req, res) => {
             return res.json({success:false, message: "Creation not found!"})
         }
 
-        const currentLikes = creation.likes;
-        const userIdStr = useImperativeHandle.toString();
+        const currentLikes = creation.likes || [];
+        const userIdStr = userId.toString(); // Fixed: Correctly convert userId to string
         let updatedLikes;
         let message;
 
         if(currentLikes.includes(userIdStr)){
             updatedLikes = currentLikes.filter((user)=>user !== userIdStr);
-            message = 'Creation Unliked'
+            message = 'Creation Unliked';
         } else {
-            updatedLikes = [...currentLikes, userIdStr]
-            message = 'Creation Liked'
+            updatedLikes = [...currentLikes, userIdStr];
+            message = 'Creation Liked';
         }
 
-        const formattedArray = `{${updatedLikes.join(',')}}`
+        // Fixed: Properly format array for PostgreSQL
+        const formattedArray = `{${updatedLikes.map(id => `"${id}"`).join(',')}}`;
 
-        await sql`update creations set likes = ${formattedArray}:text[] where id = ${id}`
+        await sql`update creations set likes = ${formattedArray}::text[] where id = ${id}`;
 
         res.json({success: true, message});
     

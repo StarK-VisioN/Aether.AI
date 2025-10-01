@@ -144,10 +144,10 @@ export const generateImage = async (req, res) => {
 };
 
 
-export const removeImageObject = async (req, res) => {
+export const removeImageBackground = async (req, res) => {
   try {
     const {userId} = req.auth();
-    const {image} = req.file;
+    const image = req.file;
     const plan = req.plan;
 
     if(plan!== 'premium') {
@@ -172,11 +172,11 @@ export const removeImageObject = async (req, res) => {
   }
 }
 
-export const removeImageBackground = async (req, res) => {
+export const removeImageObject= async (req, res) => {
   try {
     const {userId} = req.auth();
     const {object} = req.body;
-    const {image} = req.file;
+    const image = req.file;
     const plan = req.plan;
 
     if(plan!== 'premium') {
@@ -191,7 +191,7 @@ export const removeImageBackground = async (req, res) => {
       resource_type: 'image'
     })
 
-    await sql`insert into creations (user_id, prompt, content, type) values (${userId}, ${`Removed ${object} from image`}, ${image_url}, 'image')`;  
+    await sql`insert into creations (user_id, prompt, content, type) values (${userId}, ${`Removed ${object} from image`}, ${imageUrl}, 'image')`;  
     res.json({success:true, content: imageUrl});
 
   } catch (error) {
@@ -207,7 +207,7 @@ export const resumeReview = async (req, res) => {
     const resume = req.file;
     const plan = req.plan;
 
-    if(plan!== 'premium') {
+    if(plan !== 'premium') {
       return res.json({success: false, message: 'This feature is only available for premium subscriptions'})
     }
 
@@ -217,27 +217,42 @@ export const resumeReview = async (req, res) => {
     }
 
     const dataBuffer = fs.readFileSync(resume.path)
-    // parsing resume to extract the content inside pdf
     const pdfData = await pdf(dataBuffer)
 
-    const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvement. Resume Content:\n\n${pdfData.text}`
+    const prompt = `You are an expert resume reviewer. Analyze this resume and provide:
+                    1. **ATS Score (0-100)**: Rate ATS compatibility
+                    2. **Key Strengths**: List 3-5 strong points
+                    3. **Areas for Improvement**: List 3-5 specific improvements needed
+                    4. **Grammar & Spelling Issues**: Identify any errors found
+                    5. **Keyword Analysis**: Mention important keywords present and missing for the role
+                    6. **Overall Feedback**: Provide detailed recommendations
+
+                    Format your response in clear markdown with headers.
+                    Resume Content:
+                    ${pdfData.text}`;
 
     const response = await AI.chat.completions.create({
       model: "gemini-2.0-flash",
       messages: [
-        { role: "user", content: prompt, },
+        { role: "user", content: prompt },
       ],
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: 2000,
     });
 
     const content = response.choices[0].message.content;
 
-    await sql`insert into creations (user_id, prompt, content, type) values (${userId},'Review the uploaded resume',  ${content}, 'resume-review')`;  
-    res.json({success:true, content});
+    await sql`insert into creations (user_id, prompt, content, type) values (
+      ${userId},
+      'Review the uploaded resume',
+      ${content},
+      'resume-review'
+    )`;
+    
+    res.json({success: true, content});
 
   } catch (error) {
-    console.error("Error in generateImage:", error);
+    console.error("Error in resumeReview:", error);
     res.status(500).json({success: false, message: error.message || "An unknown error occurred"});
   }
 }
